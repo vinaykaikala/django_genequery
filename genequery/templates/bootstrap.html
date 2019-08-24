@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Gene Catalog</title>
+  {% load static %}
+  <!-- Bootstrap core CSS -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="{% static 'css/business-frontpage.css' %}" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">Gene Catalog</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="bg-primary ">
+    <div class="container ">
+      <div class="row  align-items-center">
+        <div class="col-lg-12">
+          <h1 class="display-4 text-white mt-2 mb-2">Gene Search Catalog</h1>
+          <p class="lead mb-5 text-white-50">This App Facilitates keyword based gene search</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <div class="container">
+
+    <br>	  
+    <div class="row" >
+      <div class="col-md-12 mb-5">
+       <form>
+         <div class="form-row align-items-center">
+           <div class="col-sm-3 my-1">
+            <label class="sr-only" for="inlineFormInputName">Gene Name </label>
+              <input type="text" class="form-control" id="genename" placeholder="Search Gene Name">
+           </div>
+           <div class="col-sm-3 my-1">
+             <label class="sr-only" for="inlineFormInputGroupUsername">Species</label>
+             <div class="input-group">
+               <input type="text" class="form-control" id="speciesname" placeholder="Search Species Name">
+             </div>
+            </div>
+           <div class="col-auto my-1">
+             <button type="button" id="submitgene" class="btn btn-primary">Get</button>
+          </div>
+         </div>
+        </form>
+	<br>
+	<div class="alert alert-success" id="success" role="alert" style="display:none;" >Message of the Alert</div>
+	<div class="alert alert-danger" id="error" style="display:none;" > </div>
+      </div> 	
+    </div>	    
+
+    
+    
+    <div class="row">
+      <div class="col-md-12 mb-5">
+        <table
+          id="table"
+          data-toggle="table"
+          data-toolbar="#toolbar"
+          data-height="660"
+	  data-search="true"
+          data-pagination="true"
+          data-total-field="count"
+          data-data-field="items"
+          data-url="genequery/search?lookup=bra">
+          <thead>
+           <tr>
+             <th data-field="species_name" data-sortable="true" >Species</th>
+             <th data-field="ensembl_stable_id"data-sortable="true" >Ensembl Stable ID</th>
+             <th data-field="gene_name" data-sortable="true" >Gene Name</th>
+             <th data-field="gene_location" data-sortable="true" >Gene Location</th>
+           </tr>
+          </thead>
+        </table>  	
+      </div>
+    </div>
+    <!-- /.row -->
+
+    <div class="row">
+      <div class="col-md-4 mb-5">
+      </div>
+      <div class="col-md-4 mb-5">
+      </div>
+    </div>
+    <!-- /.row -->
+
+  </div>
+  <!-- /.container -->
+
+  <!-- Footer -->
+  <footer class="py-5 bg-dark">
+    <div class="container">
+      <p class="m-0 text-center text-white">Copyright &copy; Gene Search Catalog 2019</p>
+    </div>
+    <!-- /.container -->
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <link href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
+
+
+  <script>
+  var $table = $('#table')
+  var $button = $('#submitgene')
+  $('#error').hide(); 
+
+  $(function() {
+    $button.click(function () {
+     var gene_name = $('#genename').val();
+     var species_name = $('#speciesname').val();
+     var url = '/genequery/search?lookup=';	    
+     if( gene_name !== '' && gene_name.length > 2 ){
+        url = url + gene_name
+	     if(species_name !== ''){
+		     url = url + '&species=' + species_name;
+	     }     
+     	console.log(url);
+        // ajax call
+	$table.bootstrapTable('showLoading')
+	$.ajax({
+		url: url,
+		error: function() {
+			$table.bootstrapTable('hideLoading')
+			$('#info').html('<p>An error has occurred</p>');
+		},
+		success: function(data) {
+			console.log('ajax');
+			console.log(data);
+			$table.bootstrapTable('load', data);
+			$table.bootstrapTable('hideLoading')
+			 $('#success').html('<strong>Success:</strong> Data for gene lookup ' + gene_name + ' loaded successfully')
+			if(data.length === 0){
+		          $('#success').html('<strong>Success:</strong> No data found for searched gene name ' + gene_name + ' ')
+                        }
+
+              		 $("#success").fadeTo(12000, 500).slideUp(500, function() {
+		                        $("#success").slideUp(500);
+                	 });
+
+		},
+		type: 'GET'
+	});     
+	     
+     }	    
+     else{
+               $('#error').html('<strong>Error:</strong> Gene lookup name required and its length should be greater than 2')
+	       $("#error").fadeTo(12000, 500).slideUp(500, function() {
+      			$("#error").slideUp(500);
+    		});
+	     //alert('Gene name required');
+     }	    
+      //$table.bootstrapTable('load', randomData())
+    })
+  })
+ </script>
+</body>
+
+</html>
