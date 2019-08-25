@@ -19,6 +19,7 @@ Django gene_queryh application
 --
 ```
     -UI  : http://localhost:8000
+    ![alt text](https://raw.githubusercontent.com/vinaykaikala/django_genequery/master/ui.png)
     -API : http://localhost:8000/genequery/search?lookup=brap
     -API : http://localhost:8000/genequery/search?lookup=bra&species=amphilophus_citrinellus 
 ```
